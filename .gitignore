@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
+# C ex1ensions
 *.so
 
 # Distribution / packaging
@@ -103,6 +103,8 @@ celerybeat.pid
 
 # Environments
 .env
+.env.dev
+.env.prod
 .venv
 env/
 venv/

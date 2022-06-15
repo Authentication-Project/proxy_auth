@@ -1,0 +1,15 @@
+Flask==1.1.1
+Flask-Script==2.0.6
+Flask-Cors==3.0.10
+itsdangerous==1.1.0
+Jinja2==2.11.1
+MarkupSafe==1.1.1
+Werkzeug==1.0.0
+Flask-GraphQL==2.0.1
+graphene==2.1.8
+graphql-core==2.3.1
+graphql-relay==2.0.1
+graphql-server-core==1.2.0
+requests==2.18.4
+python-dotenv==0.20.0
+

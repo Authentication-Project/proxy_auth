@@ -1,0 +1,84 @@
+#!/usr/bin/env python3
+
+
+import graphene
+# -----------------------------------------
+from os.path import join, dirname
+from flask import Flask
+from flask_graphql import GraphQLView
+from flask_cors import CORS
+from dotenv import load_dotenv
+# -----------------------------------------
+import proxy_querys
+import proxy_mutations
+
+
+__version__ = "3.0.1"
+
+
+dotenv_path = join(dirname(__file__), '.env.dev')
+load_dotenv(dotenv_path)
+
+#Prueba
+
+# 2. Global
+pg_conn = None
+response_body = ""
+
+# 3. PgSql
+
+
+# 2. Query
+class QueryEstandar(graphene.ObjectType):
+    global pg_conn
+
+    usuarios = graphene.List(
+        proxy_querys.UsuariosFiltro, token=graphene.String())
+
+    def resolve_usuarios(self, info, token):
+        return proxy_querys.get_usuarios(pg_conn, token) #, backend_querys.get_usuarios(pg_conn, tipo_filter, data_filter)
+
+    login = graphene.List(
+        proxy_querys.LoginFiltro, email=graphene.String(), contrasena=graphene.String())
+
+    def resolve_login(self, info, email, contrasena):
+        return proxy_querys.get_login(pg_conn, email, contrasena) #, backend_querys.get_usuarios(pg_conn, tipo_filter, data_filter)
+
+    recuperar = graphene.List(
+        proxy_querys.RecuperarFiltro, email=graphene.String())
+
+    def resolve_recuperar(self, info, email):
+        return proxy_querys.get_recuperar(pg_conn, email) #, backend_querys.get_usuarios(pg_conn, tipo_filter, data_filter)
+    
+    total = graphene.List(proxy_querys.TotalUsuarios, tipo_filter=graphene.String(), data_filter=graphene.String())
+    
+    def resolve_total(self, info, tipo_filter, data_filter):
+        return proxy_querys.get_totalusuarios(pg_conn, tipo_filter, data_filter)
+
+
+# 3. Mutation
+class MutationEstandar(graphene.ObjectType):
+    insertuser = proxy_mutations.ModifyUserNewx.Field()
+    resetPassword = proxy_mutations.ResetPassword.Field()
+
+
+# 4. Schemas
+schema_estandar = graphene.Schema(query=QueryEstandar, mutation=MutationEstandar)
+
+# 6. Service
+
+
+app = Flask(__name__)
+
+CORS(app, resources={r"/*":{"origins":"*"}})
+
+app.add_url_rule(
+    '/graphql', 
+    view_func=GraphQLView.as_view(
+        'graphql', 
+        schema=schema_estandar, 
+        graphiql=True))
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0', threaded=True, port=5000)
